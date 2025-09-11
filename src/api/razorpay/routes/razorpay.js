@@ -16,5 +16,7 @@ module.exports = {
         auth: false,
       },
     },
+    { method: "POST", path: "/razorpay/order", handler: "razorpay.order" },
+    { method: "POST", path: "/razorpay/verify", handler: "razorpay.verify" },
   ],
 };

@@ -8,12 +8,15 @@ const razorpay = new Razorpay({
 });
 
 module.exports = {
-  // 1️⃣ Create Razorpay Order
+  // 1️⃣ Create Razorpay order
   async order(ctx) {
     try {
       const { amount, currency = "INR" } = ctx.request.body;
+
+      console.log("Creating Razorpay order with:", amount, currency);
+
       const options = {
-        amount: amount * 100, // in paise
+        amount: amount * 100, // convert to paise
         currency,
         payment_capture: 1,
       };
@@ -21,11 +24,12 @@ module.exports = {
       const order = await razorpay.orders.create(options);
       return { order };
     } catch (err) {
+      console.error("🔥 Razorpay order error:", err);
       ctx.throw(500, err.message);
     }
   },
 
-  // 2️⃣ Verify Payment + Update Order status in Strapi
+  // 2️⃣ Verify payment & save order
   async verify(ctx) {
     try {
       const {
@@ -44,37 +48,27 @@ module.exports = {
         .update(razorpay_order_id + "|" + razorpay_payment_id)
         .digest("hex");
 
+      let status = "failed";
       if (generatedSignature === razorpay_signature) {
-        // ✅ Verified → Save as paid
-        const order = await strapi.db.query("api::order.order").create({
-          data: {
-            customerName,
-            email,
-            phoneNumber,
-            items,
-            total,
-            status: "paid",
-            razorpayOrderId: razorpay_order_id,
-            razorpayPaymentId: razorpay_payment_id,
-          },
-        });
-        return { success: true, order };
-      } else {
-        // ❌ Signature mismatch → Save as failed
-        const order = await strapi.db.query("api::order.order").create({
-          data: {
-            customerName,
-            email,
-            phoneNumber,
-            items,
-            total,
-            status: "failed",
-            razorpayOrderId: razorpay_order_id,
-          },
-        });
-        return { success: false, order };
+        status = "paid";
       }
+
+      const order = await strapi.entityService.create("api::order.order", {
+        data: {
+          customerName,
+          email,
+          phoneNumber,
+          items,
+          total,
+          status,
+          razorpayOrderId: razorpay_order_id,
+          razorpayPaymentId: razorpay_payment_id,
+        },
+      });
+
+      return { success: status === "paid", order };
     } catch (err) {
+      console.error("🔥 Razorpay verify error:", err);
       ctx.throw(500, err.message);
     }
   },
