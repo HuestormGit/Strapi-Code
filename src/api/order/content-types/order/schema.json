@@ -7,38 +7,31 @@
     "displayName": "Order"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "attributes": {
     "customerName": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "email": {
-      "type": "email",
-      "required": true
+      "type": "email"
     },
     "phoneNumber": {
       "type": "string"
     },
     "items": {
-      "type": "json",
-      "required": true
+      "type": "json"
     },
-    "total": {
-      "type": "decimal",
-      "required": true
+    "totalAmount": {
+      "type": "decimal"
     },
-    "status": {
+    "orderstatus": {
       "type": "enumeration",
-      "enum": ["pending", "paid", "shipped", "delivered"],
-      "default": "pending"
+      "enum": ["Pending", "Paid", "Shipped"],
+      "default": "Pending"
     },
-    "razorpayOrderId": {
-      "type": "string"
-    },
-    "razorpayPaymentId": {
-      "type": "string"
+    "paymentDetails": {
+      "type": "json"
     }
   }
 }
