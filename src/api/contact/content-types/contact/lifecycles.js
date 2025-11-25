@@ -1,4 +1,5 @@
-export default {
+// export default {
+module.exports = {
   beforeCreate(event) {
     // Auto-publish contacts by setting publishedAt
     if (!event.params.data.publishedAt) {
