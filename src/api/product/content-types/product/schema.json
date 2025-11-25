@@ -14,6 +14,9 @@
     "Title": {
       "type": "string"
     },
+    "SubTitle": {
+      "type": "string"
+    },
     "Ingredients": {
       "type": "blocks"
     },
