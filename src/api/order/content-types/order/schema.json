@@ -19,6 +19,18 @@
     "phoneNumber": {
       "type": "string"
     },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "pincode": {
+      "type": "string"
+    },
     "items": {
       "type": "json"
     },
