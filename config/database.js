@@ -1,7 +1,13 @@
 const path = require('path');
 
 module.exports = ({ env }) => {
-  const client = env('DATABASE_CLIENT', 'sqlite');
+  // Strapi Cloud injects its managed PostgreSQL credentials as DATABASE_* vars at
+  // runtime. Defaulting to postgres in production keeps a missing DATABASE_CLIENT
+  // from silently falling back to SQLite on the container's ephemeral disk.
+  const client = env(
+    'DATABASE_CLIENT',
+    env('NODE_ENV', 'development') === 'production' ? 'postgres' : 'sqlite'
+  );
 
   const connections = {
     mysql: {
