@@ -1,0 +1,51 @@
+{
+  "collectionName": "components_order_shipping_snapshots",
+  "info": {
+    "displayName": "Shipping Snapshot",
+    "icon": "pinMap",
+    "description": "Immutable copy of the delivery address exactly as entered at checkout. Deliberately NOT a relation to any Address record, so a customer editing or deleting a saved address can never rewrite order history."
+  },
+  "options": {},
+  "attributes": {
+    "fullName": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    },
+    "addressLine1": {
+      "type": "string"
+    },
+    "addressLine2": {
+      "type": "string"
+    },
+    "landmark": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "stateCode": {
+      "type": "string"
+    },
+    "postalCode": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string",
+      "default": "India"
+    },
+    "sourceAddressRef": {
+      "type": "string"
+    },
+    "capturedAt": {
+      "type": "datetime"
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "kind": "collectionType",
+  "collectionName": "payment_attempts",
+  "info": {
+    "singularName": "payment-attempt",
+    "pluralName": "payment-attempts",
+    "displayName": "Payment Attempt",
+    "description": "One attempt to collect payment for an order. Several attempts may exist per order; recording a failed attempt never mutates the order's own payment state."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "order": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::order.order",
+      "inversedBy": "paymentAttempts"
+    },
+    "attemptReference": {
+      "type": "string",
+      "unique": true
+    },
+    "attemptNumber": {
+      "type": "integer",
+      "default": 1,
+      "min": 1
+    },
+    "provider": {
+      "type": "enumeration",
+      "enum": ["razorpay", "manual"],
+      "default": "razorpay"
+    },
+    "providerOrderId": {
+      "type": "string"
+    },
+    "providerPaymentId": {
+      "type": "string"
+    },
+    "amountMinor": {
+      "type": "integer"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR",
+      "maxLength": 3
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "initiated",
+        "pending",
+        "processing",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "expired",
+        "refunded"
+      ],
+      "default": "initiated"
+    },
+    "failureCode": {
+      "type": "string"
+    },
+    "failureReason": {
+      "type": "text"
+    },
+    "failureSource": {
+      "type": "string"
+    },
+    "providerResponse": {
+      "type": "json"
+    },
+    "initiatedAt": {
+      "type": "datetime"
+    },
+    "completedAt": {
+      "type": "datetime"
+    }
+  }
+}

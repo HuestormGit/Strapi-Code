@@ -1,0 +1,99 @@
+{
+  "kind": "collectionType",
+  "collectionName": "product_variants",
+  "info": {
+    "singularName": "product-variant",
+    "pluralName": "product-variants",
+    "displayName": "Product Variant",
+    "description": "A sellable SKU. Owns its own pricing, tax breakup, weight and dimensions, because variants of the same product sell at different prices."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "product": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::product.product",
+      "inversedBy": "variants"
+    },
+    "orderItems": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order-item.order-item",
+      "mappedBy": "productVariant"
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "sku": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "packSize": {
+      "type": "string"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR",
+      "maxLength": 3
+    },
+    "mrpMinor": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "discountMinor": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "sellingPriceMinor": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "taxableBaseMinor": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "gstMinor": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "gstRateBps": {
+      "type": "integer",
+      "default": 500,
+      "min": 0
+    },
+    "hsnCode": {
+      "type": "string"
+    },
+    "weightGrams": {
+      "type": "integer",
+      "min": 0
+    },
+    "dimensions": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.dimensions"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "displayOrder": {
+      "type": "integer"
+    }
+  }
+}

@@ -4,7 +4,8 @@
   "info": {
     "singularName": "product",
     "pluralName": "products",
-    "displayName": "Product"
+    "displayName": "Product",
+    "description": "Marketing content for a product line. All sellable attributes (SKU, pricing, tax, weight, dimensions) live on Product Variant."
   },
   "options": {
     "draftAndPublish": true
@@ -33,8 +34,11 @@
     "HOWTOPREPAREAHARASAM": {
       "type": "blocks"
     },
-    "Variant": {
-      "type": "json"
+    "variants": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product-variant.product-variant",
+      "mappedBy": "product"
     }
   }
 }

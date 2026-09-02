@@ -1,0 +1,110 @@
+{
+  "kind": "collectionType",
+  "collectionName": "order_items",
+  "info": {
+    "singularName": "order-item",
+    "pluralName": "order-items",
+    "displayName": "Order Item",
+    "description": "One purchased line. Carries a full price snapshot taken at checkout, so historical orders never depend on today's variant pricing. unitSellingPriceMinor is TAX-INCLUSIVE: unitTaxableBaseMinor + unitGstMinor = unitSellingPriceMinor."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "order": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::order.order",
+      "inversedBy": "orderItems"
+    },
+    "productVariant": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::product-variant.product-variant",
+      "inversedBy": "orderItems"
+    },
+    "productTitleSnapshot": {
+      "type": "string"
+    },
+    "variantNameSnapshot": {
+      "type": "string"
+    },
+    "skuSnapshot": {
+      "type": "string"
+    },
+    "packSizeSnapshot": {
+      "type": "string"
+    },
+    "weightGramsSnapshot": {
+      "type": "integer",
+      "min": 0
+    },
+    "hsnCodeSnapshot": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "integer",
+      "required": true,
+      "default": 1,
+      "min": 1
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR",
+      "maxLength": 3
+    },
+    "unitMrpMinor": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "unitDiscountMinor": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "unitSellingPriceMinor": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "unitTaxableBaseMinor": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "unitGstMinor": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "gstRateBps": {
+      "type": "integer",
+      "default": 500,
+      "min": 0
+    },
+    "lineMrpTotalMinor": {
+      "type": "integer",
+      "min": 0
+    },
+    "lineDiscountMinor": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "lineTaxableBaseMinor": {
+      "type": "integer",
+      "min": 0
+    },
+    "lineGstMinor": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "lineTotalMinor": {
+      "type": "integer",
+      "min": 0
+    }
+  }
+}
