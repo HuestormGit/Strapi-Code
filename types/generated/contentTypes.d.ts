@@ -1022,6 +1022,13 @@ export interface ApiProductVariantProductVariant
         },
         number
       >;
+    shippingWeightGrams: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      >;
     sku: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
