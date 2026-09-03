@@ -4,12 +4,23 @@
   "info": {
     "singularName": "order",
     "pluralName": "orders",
-    "displayName": "Order"
+    "displayName": "Order",
+    "description": "A placed order. All money is integer paise. subtotalMinor is TAX-INCLUSIVE: subtotalMinor = taxableBaseMinor + taxMinor, and grandTotalMinor = subtotalMinor + shippingFeeMinor."
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
+  "pluginOptions": {},
   "attributes": {
+    "orderNumber": {
+      "type": "string",
+      "unique": true
+    },
+    "customer": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
     "customerName": {
       "type": "string"
     },
@@ -19,31 +30,155 @@
     "phoneNumber": {
       "type": "string"
     },
-    "address": {
-      "type": "string"
+    "orderItems": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order-item.order-item",
+      "mappedBy": "order"
     },
-    "city": {
-      "type": "string"
+    "paymentAttempts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::payment-attempt.payment-attempt",
+      "mappedBy": "order"
     },
-    "state": {
-      "type": "string"
+    "currency": {
+      "type": "string",
+      "default": "INR",
+      "maxLength": 3
     },
-    "pincode": {
-      "type": "string"
+    "itemsMrpTotalMinor": {
+      "type": "integer",
+      "min": 0
     },
-    "items": {
-      "type": "json"
+    "discountMinor": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
     },
-    "totalAmount": {
-      "type": "decimal"
+    "subtotalMinor": {
+      "type": "integer",
+      "min": 0
     },
-    "orderstatus": {
+    "taxableBaseMinor": {
+      "type": "integer",
+      "min": 0
+    },
+    "taxMinor": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "taxType": {
       "type": "enumeration",
-      "enum": ["Pending", "Paid", "Shipped"],
-      "default": "Pending"
+      "enum": ["igst", "cgst_sgst", "none"]
     },
-    "paymentDetails": {
-      "type": "json"
+    "igstMinor": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "cgstMinor": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "sgstMinor": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "placeOfSupplyStateCode": {
+      "type": "string"
+    },
+    "shippingFeeMinor": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "grandTotalMinor": {
+      "type": "integer",
+      "min": 0
+    },
+    "paymentStatus": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "processing",
+        "paid",
+        "failed",
+        "cancelled",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "shipmentStatus": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "returned"
+      ],
+      "default": "pending"
+    },
+    "shippingSnapshot": {
+      "type": "component",
+      "repeatable": false,
+      "component": "order.shipping-snapshot"
+    },
+    "paymentProvider": {
+      "type": "enumeration",
+      "enum": ["razorpay", "manual"],
+      "default": "razorpay"
+    },
+    "paymentProviderOrderId": {
+      "type": "string"
+    },
+    "paymentProviderPaymentId": {
+      "type": "string"
+    },
+    "paidAt": {
+      "type": "datetime"
+    },
+    "shipmentProvider": {
+      "type": "enumeration",
+      "enum": ["shiprocket", "manual"],
+      "default": "shiprocket"
+    },
+    "shipmentProviderOrderId": {
+      "type": "string"
+    },
+    "shipmentProviderShipmentId": {
+      "type": "string"
+    },
+    "awbNumber": {
+      "type": "string"
+    },
+    "trackingUrl": {
+      "type": "string"
+    },
+    "shippedAt": {
+      "type": "datetime"
+    },
+    "deliveredAt": {
+      "type": "datetime"
+    },
+    "paymentAttemptCount": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "lastPaymentAttemptAt": {
+      "type": "datetime"
+    },
+    "lastPaymentError": {
+      "type": "text"
+    },
+    "nextPaymentRetryAt": {
+      "type": "datetime"
     }
   }
 }

@@ -570,45 +570,486 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiOrderItemOrderItem extends Struct.CollectionTypeSchema {
+  collectionName: 'order_items';
+  info: {
+    description: "One purchased line. Carries a full price snapshot taken at checkout, so historical orders never depend on today's variant pricing. unitSellingPriceMinor is TAX-INCLUSIVE: unitTaxableBaseMinor + unitGstMinor = unitSellingPriceMinor.";
+    displayName: 'Order Item';
+    pluralName: 'order-items';
+    singularName: 'order-item';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    currency: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 3;
+      }> &
+      Schema.Attribute.DefaultTo<'INR'>;
+    gstRateBps: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<500>;
+    hsnCodeSnapshot: Schema.Attribute.String;
+    lineDiscountMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    lineGstMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    lineMrpTotalMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    lineTaxableBaseMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    lineTotalMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::order-item.order-item'
+    > &
+      Schema.Attribute.Private;
+    order: Schema.Attribute.Relation<'manyToOne', 'api::order.order'>;
+    packSizeSnapshot: Schema.Attribute.String;
+    productTitleSnapshot: Schema.Attribute.String;
+    productVariant: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::product-variant.product-variant'
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    quantity: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<1>;
+    skuSnapshot: Schema.Attribute.String;
+    unitDiscountMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    unitGstMinor: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    unitMrpMinor: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    unitSellingPriceMinor: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    unitTaxableBaseMinor: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    variantNameSnapshot: Schema.Attribute.String;
+    weightGramsSnapshot: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+  };
+}
+
 export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
   collectionName: 'orders';
   info: {
+    description: 'A placed order. All money is integer paise. subtotalMinor is TAX-INCLUSIVE: subtotalMinor = taxableBaseMinor + taxMinor, and grandTotalMinor = subtotalMinor + shippingFeeMinor.';
     displayName: 'Order';
     pluralName: 'orders';
     singularName: 'order';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
-    address: Schema.Attribute.String;
-    city: Schema.Attribute.String;
+    awbNumber: Schema.Attribute.String;
+    cgstMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    currency: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 3;
+      }> &
+      Schema.Attribute.DefaultTo<'INR'>;
+    customer: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
     customerName: Schema.Attribute.String;
+    deliveredAt: Schema.Attribute.DateTime;
+    discountMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
     email: Schema.Attribute.Email;
-    items: Schema.Attribute.JSON;
+    grandTotalMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    igstMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    itemsMrpTotalMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    lastPaymentAttemptAt: Schema.Attribute.DateTime;
+    lastPaymentError: Schema.Attribute.Text;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::order.order'> &
       Schema.Attribute.Private;
-    orderstatus: Schema.Attribute.Enumeration<['Pending', 'Paid', 'Shipped']> &
-      Schema.Attribute.DefaultTo<'Pending'>;
-    paymentDetails: Schema.Attribute.JSON;
+    nextPaymentRetryAt: Schema.Attribute.DateTime;
+    orderItems: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::order-item.order-item'
+    >;
+    orderNumber: Schema.Attribute.String & Schema.Attribute.Unique;
+    paidAt: Schema.Attribute.DateTime;
+    paymentAttemptCount: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    paymentAttempts: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::payment-attempt.payment-attempt'
+    >;
+    paymentProvider: Schema.Attribute.Enumeration<['razorpay', 'manual']> &
+      Schema.Attribute.DefaultTo<'razorpay'>;
+    paymentProviderOrderId: Schema.Attribute.String;
+    paymentProviderPaymentId: Schema.Attribute.String;
+    paymentStatus: Schema.Attribute.Enumeration<
+      ['pending', 'processing', 'paid', 'failed', 'cancelled', 'refunded']
+    > &
+      Schema.Attribute.DefaultTo<'pending'>;
     phoneNumber: Schema.Attribute.String;
-    pincode: Schema.Attribute.String;
+    placeOfSupplyStateCode: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
-    state: Schema.Attribute.String;
-    totalAmount: Schema.Attribute.Decimal;
+    sgstMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    shipmentProvider: Schema.Attribute.Enumeration<['shiprocket', 'manual']> &
+      Schema.Attribute.DefaultTo<'shiprocket'>;
+    shipmentProviderOrderId: Schema.Attribute.String;
+    shipmentProviderShipmentId: Schema.Attribute.String;
+    shipmentStatus: Schema.Attribute.Enumeration<
+      ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'returned']
+    > &
+      Schema.Attribute.DefaultTo<'pending'>;
+    shippedAt: Schema.Attribute.DateTime;
+    shippingFeeMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    shippingSnapshot: Schema.Attribute.Component<
+      'order.shipping-snapshot',
+      false
+    >;
+    subtotalMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    taxableBaseMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    taxMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    taxType: Schema.Attribute.Enumeration<['igst', 'cgst_sgst', 'none']>;
+    trackingUrl: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
   };
 }
 
+export interface ApiPaymentAttemptPaymentAttempt
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'payment_attempts';
+  info: {
+    description: "One attempt to collect payment for an order. Several attempts may exist per order; recording a failed attempt never mutates the order's own payment state.";
+    displayName: 'Payment Attempt';
+    pluralName: 'payment-attempts';
+    singularName: 'payment-attempt';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    amountMinor: Schema.Attribute.Integer;
+    attemptNumber: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<1>;
+    attemptReference: Schema.Attribute.String & Schema.Attribute.Unique;
+    completedAt: Schema.Attribute.DateTime;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    currency: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 3;
+      }> &
+      Schema.Attribute.DefaultTo<'INR'>;
+    failureCode: Schema.Attribute.String;
+    failureReason: Schema.Attribute.Text;
+    failureSource: Schema.Attribute.String;
+    initiatedAt: Schema.Attribute.DateTime;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::payment-attempt.payment-attempt'
+    > &
+      Schema.Attribute.Private;
+    order: Schema.Attribute.Relation<'manyToOne', 'api::order.order'>;
+    provider: Schema.Attribute.Enumeration<['razorpay', 'manual']> &
+      Schema.Attribute.DefaultTo<'razorpay'>;
+    providerOrderId: Schema.Attribute.String;
+    providerPaymentId: Schema.Attribute.String;
+    providerResponse: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    status: Schema.Attribute.Enumeration<
+      [
+        'initiated',
+        'pending',
+        'processing',
+        'succeeded',
+        'failed',
+        'cancelled',
+        'expired',
+        'refunded',
+      ]
+    > &
+      Schema.Attribute.DefaultTo<'initiated'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiProductVariantProductVariant
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'product_variants';
+  info: {
+    description: 'A sellable SKU. Owns its own pricing, tax breakup, weight and dimensions, because variants of the same product sell at different prices.';
+    displayName: 'Product Variant';
+    pluralName: 'product-variants';
+    singularName: 'product-variant';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    currency: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 3;
+      }> &
+      Schema.Attribute.DefaultTo<'INR'>;
+    dimensions: Schema.Attribute.Component<'shared.dimensions', false>;
+    discountMinor: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    displayOrder: Schema.Attribute.Integer;
+    gstMinor: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    gstRateBps: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<500>;
+    hsnCode: Schema.Attribute.String;
+    image: Schema.Attribute.Media<'images'>;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product-variant.product-variant'
+    > &
+      Schema.Attribute.Private;
+    mrpMinor: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    orderItems: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::order-item.order-item'
+    >;
+    packSize: Schema.Attribute.String;
+    product: Schema.Attribute.Relation<'manyToOne', 'api::product.product'>;
+    publishedAt: Schema.Attribute.DateTime;
+    sellingPriceMinor: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    sku: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
+    taxableBaseMinor: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    weightGrams: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+  };
+}
+
 export interface ApiProductProduct extends Struct.CollectionTypeSchema {
   collectionName: 'products';
   info: {
+    description: 'Marketing content for a product line. All sellable attributes (SKU, pricing, tax, weight, dimensions) live on Product Variant.';
     displayName: 'Product';
     pluralName: 'products';
     singularName: 'product';
@@ -635,7 +1076,10 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    Variant: Schema.Attribute.JSON;
+    variants: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product-variant.product-variant'
+    >;
   };
 }
 
@@ -1154,7 +1598,10 @@ declare module '@strapi/strapi' {
       'api::category.category': ApiCategoryCategory;
       'api::contact.contact': ApiContactContact;
       'api::global.global': ApiGlobalGlobal;
+      'api::order-item.order-item': ApiOrderItemOrderItem;
       'api::order.order': ApiOrderOrder;
+      'api::payment-attempt.payment-attempt': ApiPaymentAttemptPaymentAttempt;
+      'api::product-variant.product-variant': ApiProductVariantProductVariant;
       'api::product.product': ApiProductProduct;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

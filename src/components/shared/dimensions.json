@@ -1,0 +1,29 @@
+{
+  "collectionName": "components_shared_dimensions",
+  "info": {
+    "displayName": "Dimensions",
+    "icon": "expand",
+    "description": "Physical package dimensions, used for shipping rate calculation and courier manifests."
+  },
+  "options": {},
+  "attributes": {
+    "length": {
+      "type": "decimal"
+    },
+    "width": {
+      "type": "decimal"
+    },
+    "height": {
+      "type": "decimal"
+    },
+    "unit": {
+      "type": "enumeration",
+      "enum": [
+        "cm",
+        "mm",
+        "in"
+      ],
+      "default": "cm"
+    }
+  }
+}
