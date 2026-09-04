@@ -11,5 +11,14 @@ module.exports = {
         middlewares: [],
       },
     },
+    {
+      method: 'POST',
+      path: '/checkout/shipping-options',
+      handler: 'checkout.shippingOptions',
+      config: {
+        policies: [],
+        middlewares: [],
+      },
+    },
   ],
 };

@@ -78,6 +78,10 @@
       "type": "integer",
       "min": 0
     },
+    "shippingWeightGrams": {
+      "type": "integer",
+      "min": 1
+    },
     "dimensions": {
       "type": "component",
       "repeatable": false,
