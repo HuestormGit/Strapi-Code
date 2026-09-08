@@ -53,6 +53,21 @@ const respond = (ctx, strapi, error) => {
 };
 
 module.exports = ({ strapi }) => ({
+  // The Account page's order history. ctx.query is deliberately not forwarded:
+  // the service scopes the read to ctx.state.user and chooses its own fields,
+  // so there is no client-supplied filter, populate or field list to sanitise.
+  async find(ctx) {
+    try {
+      return {
+        data: await strapi.service('api::order.order').listForCustomer({
+          user: ctx.state.user,
+        }),
+      };
+    } catch (error) {
+      return respond(ctx, strapi, error);
+    }
+  },
+
   async createRazorpayOrder(ctx) {
     try {
       return {
