@@ -135,10 +135,12 @@
       "default": "razorpay"
     },
     "paymentProviderOrderId": {
-      "type": "string"
+      "type": "string",
+      "unique": true
     },
     "paymentProviderPaymentId": {
-      "type": "string"
+      "type": "string",
+      "unique": true
     },
     "paidAt": {
       "type": "datetime"

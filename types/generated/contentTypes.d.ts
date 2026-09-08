@@ -806,8 +806,8 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     >;
     paymentProvider: Schema.Attribute.Enumeration<['razorpay', 'manual']> &
       Schema.Attribute.DefaultTo<'razorpay'>;
-    paymentProviderOrderId: Schema.Attribute.String;
-    paymentProviderPaymentId: Schema.Attribute.String;
+    paymentProviderOrderId: Schema.Attribute.String & Schema.Attribute.Unique;
+    paymentProviderPaymentId: Schema.Attribute.String & Schema.Attribute.Unique;
     paymentStatus: Schema.Attribute.Enumeration<
       ['pending', 'processing', 'paid', 'failed', 'cancelled', 'refunded']
     > &
@@ -1087,6 +1087,46 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::product-variant.product-variant'
     >;
+  };
+}
+
+export interface ApiRazorpayWebhookEventRazorpayWebhookEvent
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'razorpay_webhook_events';
+  info: {
+    description: 'One inbound Razorpay webhook delivery, keyed by its X-Razorpay-Event-Id, used to make redelivery idempotent. Operational metadata only: the raw webhook body and every card, bank, VPA, contact and customer field are deliberately never stored.';
+    displayName: 'Razorpay Webhook Event';
+    pluralName: 'razorpay-webhook-events';
+    singularName: 'razorpay-webhook-event';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    eventType: Schema.Attribute.String;
+    failureReason: Schema.Attribute.Text;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::razorpay-webhook-event.razorpay-webhook-event'
+    > &
+      Schema.Attribute.Private;
+    processedAt: Schema.Attribute.DateTime;
+    providerEventId: Schema.Attribute.String & Schema.Attribute.Unique;
+    providerOrderId: Schema.Attribute.String;
+    providerPaymentId: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    receivedAt: Schema.Attribute.DateTime;
+    status: Schema.Attribute.Enumeration<
+      ['received', 'processed', 'ignored', 'conflict', 'failed']
+    > &
+      Schema.Attribute.DefaultTo<'received'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
@@ -1610,6 +1650,7 @@ declare module '@strapi/strapi' {
       'api::payment-attempt.payment-attempt': ApiPaymentAttemptPaymentAttempt;
       'api::product-variant.product-variant': ApiProductVariantProductVariant;
       'api::product.product': ApiProductProduct;
+      'api::razorpay-webhook-event.razorpay-webhook-event': ApiRazorpayWebhookEventRazorpayWebhookEvent;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

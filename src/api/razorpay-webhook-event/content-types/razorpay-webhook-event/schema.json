@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "razorpay_webhook_events",
+  "info": {
+    "singularName": "razorpay-webhook-event",
+    "pluralName": "razorpay-webhook-events",
+    "displayName": "Razorpay Webhook Event",
+    "description": "One inbound Razorpay webhook delivery, keyed by its X-Razorpay-Event-Id, used to make redelivery idempotent. Operational metadata only: the raw webhook body and every card, bank, VPA, contact and customer field are deliberately never stored."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "providerEventId": {
+      "type": "string",
+      "unique": true,
+      "column": {
+        "unique": true
+      }
+    },
+    "eventType": {
+      "type": "string"
+    },
+    "providerOrderId": {
+      "type": "string"
+    },
+    "providerPaymentId": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["received", "processed", "ignored", "conflict", "failed"],
+      "default": "received"
+    },
+    "receivedAt": {
+      "type": "datetime"
+    },
+    "processedAt": {
+      "type": "datetime"
+    },
+    "failureReason": {
+      "type": "text"
+    }
+  }
+}

@@ -1,5 +1,50 @@
 'use strict';
 
+// The two Razorpay routes are custom content-API routes, so Strapi derives a
+// permission scope of `api::order.order.<handler>` for each and refuses any
+// request whose role lacks that grant — a 403 raised before the controller ever
+// runs. Granting it by hand in the Admin UI would live only in one
+// environment's database, so it is done here instead: additively, idempotently,
+// and touching nothing else.
+//
+// These action ids are the ones Strapi itself composes onto the routes (read
+// off the booted route metadata, not guessed), and they are exactly what
+// users-permissions' own syncPermissions keeps, so the rows survive later boots.
+const PAYMENT_ACTIONS = [
+  'api::order.order.createRazorpayOrder',
+  'api::order.order.verifyPayment',
+];
+
+const grantPaymentPermissions = async (strapi) => {
+  const role = await strapi.db.query('plugin::users-permissions.role').findOne({
+    where: { type: 'authenticated' },
+    select: ['id'],
+  });
+
+  if (!role) {
+    strapi.log.warn(
+      '[bootstrap] no authenticated role found; Razorpay payment permissions were not granted'
+    );
+    return;
+  }
+
+  for (const action of PAYMENT_ACTIONS) {
+    // Scoped to this role on purpose: the same action granted to some other
+    // role is a different row and must not suppress this one.
+    const existing = await strapi.db.query('plugin::users-permissions.permission').findOne({
+      where: { action, role: { id: role.id } },
+      select: ['id'],
+    });
+
+    if (existing) continue;
+
+    await strapi.db.query('plugin::users-permissions.permission').create({
+      data: { action, role: role.id },
+    });
+    strapi.log.info(`[bootstrap] granted ${action} to the authenticated role`);
+  }
+};
+
 // NOTE: the example/demo seeder in ./bootstrap.js is deliberately NOT wired up
 // here. It used to run on every boot and would import Strapi's demo content and
 // widen public permissions the first time it met an empty database — including a
@@ -24,6 +69,8 @@ module.exports = {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
+    await grantPaymentPermissions(strapi);
+
     const store = strapi.store({ type: 'plugin', name: 'users-permissions' });
 
     if (process.env.FRONTEND_URL) {
