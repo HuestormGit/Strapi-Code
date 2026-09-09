@@ -15,6 +15,17 @@ const PAYMENT_ACTIONS = [
   'api::order.order.verifyPayment',
 ];
 
+// GET /api/orders — the Account page's order history, added alongside the
+// Razorpay routes. It is the same kind of custom content-API route, so Strapi
+// derives `api::order.order.find` for it and answers 403 until that grant
+// exists. Granting it in the Admin UI would live only in the database of
+// whichever machine it was clicked on, which is exactly how this route came to
+// work on one setup and 403 on another; it belongs here with the rest.
+//
+// Authenticated only, never public: order.services listForCustomer scopes the
+// read to ctx.state.user, and an anonymous caller has none.
+const ACCOUNT_ACTIONS = ['api::order.order.find'];
+
 // The storefront is anonymous until checkout: the homepage lists the catalogue
 // and /cart prices the basket and checks delivery, all before there is a
 // customer to authenticate. Those four reads used to travel on a CMS API token
@@ -116,8 +127,16 @@ module.exports = {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
-    await grantPermissions(strapi, 'authenticated', PAYMENT_ACTIONS);
-    await grantPermissions(strapi, 'authenticated', PROFILE_ACTIONS);
+async bootstrap({ strapi }) {
+  await grantPermissions(strapi, 'authenticated', [
+    ...PAYMENT_ACTIONS,
+    ...ACCOUNT_ACTIONS,
+    ...PROFILE_ACTIONS,
+  ]);
+
+  await grantPermissions(strapi, 'public', STOREFRONT_PUBLIC_ACTIONS);
+
+  const store = strapi.store({ type: 'plugin', name: 'users-permissions' });
     await grantPermissions(strapi, 'public', STOREFRONT_PUBLIC_ACTIONS);
 
     const store = strapi.store({ type: 'plugin', name: 'users-permissions' });
