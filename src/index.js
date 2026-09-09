@@ -58,6 +58,21 @@ const STOREFRONT_PUBLIC_ACTIONS = [
   'api::checkout.checkout.shippingOptions',
 ];
 
+// The Account page's editable profile. `me` reads it, `updateMe` writes the
+// three customer-owned fields (fullName, phone, email) handled in
+// src/extensions/users-permissions/ — which also derives username from the
+// normalised email rather than accepting one. Both actions are self-scoped by
+// ctx.state.user, so neither can reach another customer's row.
+//
+// `update` is deliberately absent and must stay that way: the built-in
+// user.update takes its target id from ctx.params and spreads the whole request
+// body, so granting it here would hand every customer account takeover and role
+// escalation. updateMe exists precisely so that grant is never needed.
+const PROFILE_ACTIONS = [
+  'plugin::users-permissions.user.me',
+  'plugin::users-permissions.user.updateMe',
+];
+
 const grantPermissions = async (strapi, roleType, actions) => {
   const role = await strapi.db.query('plugin::users-permissions.role').findOne({
     where: { type: roleType },
@@ -112,7 +127,16 @@ module.exports = {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
-    await grantPermissions(strapi, 'authenticated', [...PAYMENT_ACTIONS, ...ACCOUNT_ACTIONS]);
+async bootstrap({ strapi }) {
+  await grantPermissions(strapi, 'authenticated', [
+    ...PAYMENT_ACTIONS,
+    ...ACCOUNT_ACTIONS,
+    ...PROFILE_ACTIONS,
+  ]);
+
+  await grantPermissions(strapi, 'public', STOREFRONT_PUBLIC_ACTIONS);
+
+  const store = strapi.store({ type: 'plugin', name: 'users-permissions' });
     await grantPermissions(strapi, 'public', STOREFRONT_PUBLIC_ACTIONS);
 
     const store = strapi.store({ type: 'plugin', name: 'users-permissions' });
