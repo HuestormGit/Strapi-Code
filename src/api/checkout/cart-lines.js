@@ -10,11 +10,22 @@ const MAX_QUANTITY_PER_LINE = 100;
 const PRODUCT_UID = 'api::product.product';
 const VARIANT_UID = 'api::product-variant.product-variant';
 
-const invalid = (message) => {
+// A stable, non-sensitive code for the one failure the customer can act on:
+// the cart references catalogue that can no longer be sold. Carried in
+// error.details so every existing controller relay forwards it unchanged.
+const CART_ITEM_UNAVAILABLE = 'CART_ITEM_UNAVAILABLE';
+
+const invalid = (message, code) => {
   const error = new Error(message);
   error.status = 400;
+  if (code) error.details = { code };
   throw error;
 };
+
+// The line cannot be sold as requested — a deleted, unpublished, deactivated or
+// re-created catalogue row. Deliberately says nothing about which of those it
+// was, and never names an internal id.
+const unavailable = (message) => invalid(message, CART_ITEM_UNAVAILABLE);
 
 const requiredDocumentId = (value, field, index) => {
   if (typeof value !== 'string' || !value.trim()) {
@@ -95,12 +106,12 @@ const resolveCartLine = async (strapi, item) => {
     }),
   ]);
 
-  if (!product || !product.publishedAt) invalid('Product is unavailable');
-  if (!variant) invalid('Product variant is unavailable');
-  if (!variant.isActive) invalid('Product variant is inactive');
-  if (!variant.product?.documentId) invalid('Product variant has no product');
+  if (!product || !product.publishedAt) unavailable('Product is unavailable');
+  if (!variant) unavailable('Product variant is unavailable');
+  if (!variant.isActive) unavailable('Product variant is inactive');
+  if (!variant.product?.documentId) unavailable('Product variant has no product');
   if (variant.product.documentId !== item.productDocumentId) {
-    invalid('Product variant does not belong to the requested product');
+    unavailable('Product variant does not belong to the requested product');
   }
 
   return { product, variant };
@@ -119,7 +130,9 @@ module.exports = {
   MAX_QUANTITY_PER_LINE,
   PRODUCT_UID,
   VARIANT_UID,
+  CART_ITEM_UNAVAILABLE,
   invalid,
+  unavailable,
   requireSafeNonNegativeInteger,
   multiplyMoney,
   addMoney,

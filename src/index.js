@@ -15,20 +15,52 @@ const PAYMENT_ACTIONS = [
   'api::order.order.verifyPayment',
 ];
 
-const grantPaymentPermissions = async (strapi) => {
+// The storefront is anonymous until checkout: the homepage lists the catalogue
+// and /cart prices the basket and checks delivery, all before there is a
+// customer to authenticate. Those four reads used to travel on a CMS API token
+// shipped inside the React bundle, which is public by definition and carried
+// far more authority than a storefront needs. They are ordinary public
+// storefront operations, so they are granted to the public role instead.
+//
+// Read-only on purpose. No create/update/delete, and nothing that is not on a
+// live call path in the React app:
+//   product.find              -> homepage catalogue list
+//   product-variant.find      -> the `variants` relation populated on that list.
+//                                Strapi strips any relation whose target the
+//                                caller cannot `find` (sanitize/visitors/
+//                                remove-restricted-relations.js), so without
+//                                this grant every product comes back with no
+//                                variants and nothing is purchasable. The same
+//                                rule is what keeps the variant's `orderItems`
+//                                relation — and the orders behind it — out of
+//                                the response: the public role has no
+//                                order-item.find, so that key is removed.
+//   checkout.quote            -> /cart price breakdown
+//   checkout.shippingOptions  -> /cart delivery check
+//
+// Both totals stay server-authoritative; nothing here lets a browser name a
+// price. Money still requires the customer JWT via PAYMENT_ACTIONS below.
+const STOREFRONT_PUBLIC_ACTIONS = [
+  'api::product.product.find',
+  'api::product-variant.product-variant.find',
+  'api::checkout.checkout.quote',
+  'api::checkout.checkout.shippingOptions',
+];
+
+const grantPermissions = async (strapi, roleType, actions) => {
   const role = await strapi.db.query('plugin::users-permissions.role').findOne({
-    where: { type: 'authenticated' },
+    where: { type: roleType },
     select: ['id'],
   });
 
   if (!role) {
     strapi.log.warn(
-      '[bootstrap] no authenticated role found; Razorpay payment permissions were not granted'
+      `[bootstrap] no ${roleType} role found; ${actions.length} permission(s) were not granted`
     );
     return;
   }
 
-  for (const action of PAYMENT_ACTIONS) {
+  for (const action of actions) {
     // Scoped to this role on purpose: the same action granted to some other
     // role is a different row and must not suppress this one.
     const existing = await strapi.db.query('plugin::users-permissions.permission').findOne({
@@ -41,7 +73,7 @@ const grantPaymentPermissions = async (strapi) => {
     await strapi.db.query('plugin::users-permissions.permission').create({
       data: { action, role: role.id },
     });
-    strapi.log.info(`[bootstrap] granted ${action} to the authenticated role`);
+    strapi.log.info(`[bootstrap] granted ${action} to the ${roleType} role`);
   }
 };
 
@@ -69,7 +101,8 @@ module.exports = {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
-    await grantPaymentPermissions(strapi);
+    await grantPermissions(strapi, 'authenticated', PAYMENT_ACTIONS);
+    await grantPermissions(strapi, 'public', STOREFRONT_PUBLIC_ACTIONS);
 
     const store = strapi.store({ type: 'plugin', name: 'users-permissions' });
 
