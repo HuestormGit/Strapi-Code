@@ -32,6 +32,31 @@ const PINCODE_PATTERN = /^[0-9]{6}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_TEXT_LENGTH = 200;
 
+// The Account page's order history. Only what its cards actually render leaves
+// the server — the provider payment ids, lastPaymentError and the shipping
+// snapshot are all deliberately absent. `id` is listed explicitly because the
+// storefront keys its rows off it.
+const ORDER_LIST_FIELDS = [
+  'id',
+  'orderNumber',
+  'grandTotalMinor',
+  'paymentStatus',
+  'shipmentStatus',
+  'createdAt',
+];
+
+const ORDER_ITEM_LIST_FIELDS = [
+  'id',
+  'productTitleSnapshot',
+  'packSizeSnapshot',
+  'quantity',
+  'lineTotalMinor',
+];
+
+// The page has no pagination and renders every order it is given, so the
+// response is capped here rather than left to grow with the account's history.
+const ORDER_LIST_LIMIT = 100;
+
 // Provider statuses. "captured" is the only status that can ever mark an order
 // paid; "authorized" earns a capture attempt first.
 const STATUS_CAPTURED = 'captured';
@@ -138,11 +163,12 @@ const providerOrderMismatch = (providerOrder, expectedAmountMinor, expectedRecei
   return null;
 };
 
-const requireUser = (user) => {
+const requireUser = (user, message = 'You must be signed in to pay for an order') => {
   // Fails closed. A CMS API token satisfies the route's auth but leaves
-  // ctx.state.user undefined, and that must not be enough to move money.
+  // ctx.state.user undefined, and that must not be enough to move money — or,
+  // for the reader below, to be handed somebody's order history.
   if (!user || !Number.isInteger(user.id)) {
-    fail(401, 'UnauthorizedError', 'You must be signed in to pay for an order');
+    fail(401, 'UnauthorizedError', message);
   }
   return user;
 };
@@ -739,6 +765,27 @@ module.exports = ({ strapi }) => {
   };
 
   return {
+    // GET /api/orders — the Account page's order history.
+    //
+    // Scope comes from the session and nothing else. The storefront also sends
+    // filters[customer][id][$eq], but no part of the request is read here: that
+    // id is display plumbing, and trusting it would let any signed-in customer
+    // page through someone else's orders by editing a number in the URL.
+    async listForCustomer({ user } = {}) {
+      const customer = requireUser(
+        user,
+        'You must be signed in to view your orders'
+      );
+
+      return documents(ORDER_UID).findMany({
+        filters: { customer: { id: customer.id } },
+        fields: [...ORDER_LIST_FIELDS],
+        populate: { orderItems: { fields: [...ORDER_ITEM_LIST_FIELDS] } },
+        sort: { createdAt: 'desc' },
+        limit: ORDER_LIST_LIMIT,
+      });
+    },
+
     async createPayment({ user, body } = {}) {
       const customer = requireUser(user);
 

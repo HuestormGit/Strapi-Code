@@ -1,6 +1,19 @@
 module.exports = {
   routes: [
     {
+      // The Account page's order history. Authenticated like create and verify
+      // below — it needs its users-permissions grant on the Authenticated role
+      // and must stay off Public, since the service scopes the read to
+      // ctx.state.user and an anonymous caller has none.
+      method: "GET",
+      path: "/orders",
+      handler: "order.find",
+      config: {
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
       method: "POST",
       path: "/orders/razorpay/create",
       handler: "order.createRazorpayOrder",
