@@ -127,16 +127,12 @@ module.exports = {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
-async bootstrap({ strapi }) {
-  await grantPermissions(strapi, 'authenticated', [
-    ...PAYMENT_ACTIONS,
-    ...ACCOUNT_ACTIONS,
-    ...PROFILE_ACTIONS,
-  ]);
+    await grantPermissions(strapi, 'authenticated', [
+      ...PAYMENT_ACTIONS,
+      ...ACCOUNT_ACTIONS,
+      ...PROFILE_ACTIONS,
+    ]);
 
-  await grantPermissions(strapi, 'public', STOREFRONT_PUBLIC_ACTIONS);
-
-  const store = strapi.store({ type: 'plugin', name: 'users-permissions' });
     await grantPermissions(strapi, 'public', STOREFRONT_PUBLIC_ACTIONS);
 
     const store = strapi.store({ type: 'plugin', name: 'users-permissions' });
