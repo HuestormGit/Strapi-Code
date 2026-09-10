@@ -1,0 +1,73 @@
+{
+  "kind": "collectionType",
+  "collectionName": "addresses",
+  "info": {
+    "singularName": "address",
+    "pluralName": "addresses",
+    "displayName": "Address",
+    "description": "A delivery address a customer has saved to their account for reuse. Field-for-field a mirror of the order.shipping-snapshot component, so a saved address and an order's delivery address read identically. Orders deliberately keep their own immutable snapshot rather than a relation to this table, so editing or deleting a row here can never rewrite order history."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "customer": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "fullName": {
+      "type": "string",
+      "required": true,
+      "maxLength": 200
+    },
+    "phone": {
+      "type": "string",
+      "required": true,
+      "maxLength": 20
+    },
+    "addressLine1": {
+      "type": "string",
+      "required": true,
+      "maxLength": 200
+    },
+    "addressLine2": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "landmark": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "city": {
+      "type": "string",
+      "required": true,
+      "maxLength": 200
+    },
+    "state": {
+      "type": "string",
+      "required": true,
+      "maxLength": 200
+    },
+    "postalCode": {
+      "type": "string",
+      "required": true,
+      "maxLength": 6
+    },
+    "country": {
+      "type": "string",
+      "default": "India",
+      "maxLength": 200
+    },
+    "label": {
+      "type": "enumeration",
+      "enum": ["home", "work", "other"],
+      "default": "home"
+    },
+    "isDefault": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
