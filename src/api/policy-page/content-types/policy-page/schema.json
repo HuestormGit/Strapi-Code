@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "policy_pages",
+  "info": {
+    "singularName": "policy-page",
+    "pluralName": "policy-pages",
+    "displayName": "Policy Page",
+    "description": "The four legal pages on the storefront. `slug` is a fixed list, not free text: the React routes are built against those four values, so a page can be re-titled and rewritten freely but cannot be moved to an address the site does not serve. Each slug is used by exactly one page, enforced in lifecycles.js (Strapi does not apply `unique` to an enumeration)."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "enumeration",
+      "enum": [
+        "terms-and-conditions",
+        "privacy-policy",
+        "shipping-policy",
+        "refund-policy"
+      ],
+      "required": true
+    },
+    "intro": {
+      "type": "text"
+    },
+    "sections": {
+      "type": "component",
+      "repeatable": true,
+      "component": "policy.section"
+    },
+    "seoTitle": {
+      "type": "string"
+    },
+    "seoDescription": {
+      "type": "text"
+    },
+    "effectiveDate": {
+      "type": "date"
+    },
+    "lastReviewedDate": {
+      "type": "date"
+    }
+  }
+}

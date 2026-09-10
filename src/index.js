@@ -1,5 +1,7 @@
 'use strict';
 
+const { seedPolicyContent } = require('./api/policy/seed');
+
 // The two Razorpay routes are custom content-API routes, so Strapi derives a
 // permission scope of `api::order.order.<handler>` for each and refuses any
 // request whose role lacks that grant — a 403 raised before the controller ever
@@ -57,6 +59,17 @@ const STOREFRONT_PUBLIC_ACTIONS = [
   'api::checkout.checkout.quote',
   'api::checkout.checkout.shippingOptions',
 ];
+
+// The four legal pages. GET /api/policies/:slug is the only policy route that
+// exists at all — Policy Page and Policy Settings ship no core router — so this
+// single grant is the whole of the public role's access to legal content, and
+// it is read-only by construction rather than by convention: there is no
+// create/update/delete handler behind it to grant.
+//
+// Public on purpose: terms, privacy, shipping and refund policy are meant to be
+// readable without an account, and the controller returns a hand-built DTO, so
+// Policy Settings is never exposed as a raw entity even to this grant.
+const POLICY_PUBLIC_ACTIONS = ['api::policy.policy.findOne'];
 
 // The Account page's editable profile. `me` reads it, `updateMe` writes the
 // three customer-owned fields (fullName, phone, email) handled in
@@ -133,7 +146,25 @@ module.exports = {
       ...PROFILE_ACTIONS,
     ]);
 
-    await grantPermissions(strapi, 'public', STOREFRONT_PUBLIC_ACTIONS);
+    await grantPermissions(strapi, 'public', [
+      ...STOREFRONT_PUBLIC_ACTIONS,
+      ...POLICY_PUBLIC_ACTIONS,
+    ]);
+
+    // Create-if-absent, so the legal pages are never empty on a fresh database
+    // and never overwritten on any boot after that. See src/api/policy/seed.js.
+    //
+    // Isolated from the rest of boot on purpose. On an established install the
+    // content already exists and this does nothing; if it ever did fail there,
+    // taking the whole shop offline over it would be far worse than starting
+    // without it and saying so in the log. A fresh install that hits this comes
+    // up with no legal pages, which the storefront renders as "not available
+    // right now" rather than as a broken page.
+    try {
+      await seedPolicyContent(strapi);
+    } catch (error) {
+      strapi.log.error(`[policy-seed] initial policy content was not written: ${error.message}`);
+    }
 
     const store = strapi.store({ type: 'plugin', name: 'users-permissions' });
 
