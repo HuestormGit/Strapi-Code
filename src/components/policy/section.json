@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_policy_sections",
+  "info": {
+    "displayName": "Policy Section",
+    "icon": "file",
+    "description": "One numbered clause of a legal page: a heading plus formatted body copy. Repeat, reorder or delete these to restructure a policy without touching code."
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "body": {
+      "type": "blocks"
+    }
+  }
+}

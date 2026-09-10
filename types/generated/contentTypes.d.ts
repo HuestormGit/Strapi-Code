@@ -1020,6 +1020,96 @@ export interface ApiPaymentAttemptPaymentAttempt
   };
 }
 
+export interface ApiPolicyPagePolicyPage extends Struct.CollectionTypeSchema {
+  collectionName: 'policy_pages';
+  info: {
+    description: 'The four legal pages on the storefront. `slug` is a fixed list, not free text: the React routes are built against those four values, so a page can be re-titled and rewritten freely but cannot be moved to an address the site does not serve. Each slug is used by exactly one page, enforced in lifecycles.js (Strapi does not apply `unique` to an enumeration).';
+    displayName: 'Policy Page';
+    pluralName: 'policy-pages';
+    singularName: 'policy-page';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    effectiveDate: Schema.Attribute.Date;
+    intro: Schema.Attribute.Text;
+    lastReviewedDate: Schema.Attribute.Date;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::policy-page.policy-page'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    sections: Schema.Attribute.Component<'policy.section', true>;
+    seoDescription: Schema.Attribute.Text;
+    seoTitle: Schema.Attribute.String;
+    slug: Schema.Attribute.Enumeration<
+      [
+        'terms-and-conditions',
+        'privacy-policy',
+        'shipping-policy',
+        'refund-policy',
+      ]
+    > &
+      Schema.Attribute.Required;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiPolicySettingPolicySetting extends Struct.SingleTypeSchema {
+  collectionName: 'policy_settings';
+  info: {
+    description: 'Business and legal details shared by every policy page. Policy copy refers to these with {{placeholders}} such as {{supportEmail}}, so each value is edited once here and updates on every page that uses it.';
+    displayName: 'Policy Settings';
+    pluralName: 'policy-settings';
+    singularName: 'policy-setting';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    brandName: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Aha Rasam'>;
+    businessAddress: Schema.Attribute.Text;
+    cancellationWindow: Schema.Attribute.String;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    dispatchTimeline: Schema.Attribute.String;
+    estimatedDeliveryTimeline: Schema.Attribute.String;
+    fssaiLicenseNumber: Schema.Attribute.String;
+    governingJurisdiction: Schema.Attribute.String;
+    grievanceEmail: Schema.Attribute.String;
+    grievanceOfficerName: Schema.Attribute.String;
+    grievancePhone: Schema.Attribute.String;
+    issueReportingWindow: Schema.Attribute.String;
+    legalEntityName: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::policy-setting.policy-setting'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    refundProcessingTimeline: Schema.Attribute.String;
+    registeredAddress: Schema.Attribute.Text;
+    shippingChargesPolicy: Schema.Attribute.String;
+    supportEmail: Schema.Attribute.String;
+    supportPhone: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiProductVariantProductVariant
   extends Struct.CollectionTypeSchema {
   collectionName: 'product_variants';
@@ -1735,6 +1825,8 @@ declare module '@strapi/strapi' {
       'api::order-item.order-item': ApiOrderItemOrderItem;
       'api::order.order': ApiOrderOrder;
       'api::payment-attempt.payment-attempt': ApiPaymentAttemptPaymentAttempt;
+      'api::policy-page.policy-page': ApiPolicyPagePolicyPage;
+      'api::policy-setting.policy-setting': ApiPolicySettingPolicySetting;
       'api::product-variant.product-variant': ApiProductVariantProductVariant;
       'api::product.product': ApiProductProduct;
       'api::razorpay-webhook-event.razorpay-webhook-event': ApiRazorpayWebhookEventRazorpayWebhookEvent;

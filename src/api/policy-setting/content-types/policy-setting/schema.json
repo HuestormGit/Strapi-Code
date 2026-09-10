@@ -1,0 +1,33 @@
+{
+  "kind": "singleType",
+  "collectionName": "policy_settings",
+  "info": {
+    "singularName": "policy-setting",
+    "pluralName": "policy-settings",
+    "displayName": "Policy Settings",
+    "description": "Business and legal details shared by every policy page. Policy copy refers to these with {{placeholders}} such as {{supportEmail}}, so each value is edited once here and updates on every page that uses it."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "brandName": { "type": "string", "default": "Aha Rasam" },
+    "legalEntityName": { "type": "string" },
+    "registeredAddress": { "type": "text" },
+    "businessAddress": { "type": "text" },
+    "supportEmail": { "type": "string" },
+    "supportPhone": { "type": "string" },
+    "grievanceOfficerName": { "type": "string" },
+    "grievanceEmail": { "type": "string" },
+    "grievancePhone": { "type": "string" },
+    "fssaiLicenseNumber": { "type": "string" },
+    "dispatchTimeline": { "type": "string" },
+    "estimatedDeliveryTimeline": { "type": "string" },
+    "refundProcessingTimeline": { "type": "string" },
+    "cancellationWindow": { "type": "string" },
+    "issueReportingWindow": { "type": "string" },
+    "shippingChargesPolicy": { "type": "string" },
+    "governingJurisdiction": { "type": "string" }
+  }
+}

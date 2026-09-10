@@ -24,6 +24,19 @@ export interface OrderShippingSnapshot extends Struct.ComponentSchema {
   };
 }
 
+export interface PolicySection extends Struct.ComponentSchema {
+  collectionName: 'components_policy_sections';
+  info: {
+    description: 'One numbered clause of a legal page: a heading plus formatted body copy. Repeat, reorder or delete these to restructure a policy without touching code.';
+    displayName: 'Policy Section';
+    icon: 'file';
+  };
+  attributes: {
+    body: Schema.Attribute.Blocks;
+    heading: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface SharedDimensions extends Struct.ComponentSchema {
   collectionName: 'components_shared_dimensions';
   info: {
@@ -106,6 +119,7 @@ declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
       'order.shipping-snapshot': OrderShippingSnapshot;
+      'policy.section': PolicySection;
       'shared.dimensions': SharedDimensions;
       'shared.media': SharedMedia;
       'shared.quote': SharedQuote;
