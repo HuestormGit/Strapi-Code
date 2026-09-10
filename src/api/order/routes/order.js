@@ -14,6 +14,15 @@ module.exports = {
       },
     },
     {
+      method: "GET",
+      path: "/orders/:documentId",
+      handler: "order.findOne",
+      config: {
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
       method: "POST",
       path: "/orders/razorpay/create",
       handler: "order.createRazorpayOrder",

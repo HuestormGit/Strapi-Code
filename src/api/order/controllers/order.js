@@ -68,6 +68,19 @@ module.exports = ({ strapi }) => ({
     }
   },
 
+  async findOne(ctx) {
+    try {
+      return {
+        data: await strapi.service('api::order.order').detailForCustomer({
+          user: ctx.state.user,
+          documentId: ctx.params.documentId,
+        }),
+      };
+    } catch (error) {
+      return respond(ctx, strapi, error);
+    }
+  },
+
   async createRazorpayOrder(ctx) {
     try {
       return {
