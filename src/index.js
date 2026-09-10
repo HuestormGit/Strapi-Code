@@ -26,6 +26,22 @@ const PAYMENT_ACTIONS = [
 // read to ctx.state.user, and an anonymous caller has none.
 const ACCOUNT_ACTIONS = ['api::order.order.find'];
 
+// The Account page's saved delivery addresses. src/api/address defines these
+// four as custom content-API routes — deliberately not createCoreRouter, so
+// Strapi's generic CRUD (findOne, count, bulk actions) never exists to be
+// granted by mistake — and derives `api::address.address.<handler>` for each.
+//
+// Authenticated only, and it must stay that way: every handler resolves the
+// owner from ctx.state.user, so a public grant would expose a route whose whole
+// authorisation model is the signed-in customer. Nothing here is readable
+// anonymously, and no handler accepts a customer id from the request.
+const ADDRESS_ACTIONS = [
+  'api::address.address.find',
+  'api::address.address.create',
+  'api::address.address.update',
+  'api::address.address.delete',
+];
+
 // The storefront is anonymous until checkout: the homepage lists the catalogue
 // and /cart prices the basket and checks delivery, all before there is a
 // customer to authenticate. Those four reads used to travel on a CMS API token
@@ -130,6 +146,7 @@ module.exports = {
     await grantPermissions(strapi, 'authenticated', [
       ...PAYMENT_ACTIONS,
       ...ACCOUNT_ACTIONS,
+      ...ADDRESS_ACTIONS,
       ...PROFILE_ACTIONS,
     ]);
 
