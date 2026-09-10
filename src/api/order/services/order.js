@@ -30,14 +30,19 @@ const CURRENCY = 'INR';
 const PINCODE_PATTERN = /^[0-9]{6}$/;
 // Deliberately loose: a trust-boundary shape check, not an address validator.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// A Strapi documentId is an opaque alphanumeric id. Shape-checked before it is
+// used as a filter because Postgres rejects a null byte in a text comparison
+// outright, which would surface an unroutable id as a 500 rather than a 404.
+const DOCUMENT_ID_PATTERN = /^[A-Za-z0-9_-]{1,100}$/;
 const MAX_TEXT_LENGTH = 200;
 
 // The Account page's order history. Only what its cards actually render leaves
 // the server — the provider payment ids, lastPaymentError and the shipping
-// snapshot are all deliberately absent. `id` is listed explicitly because the
-// storefront keys its rows off it.
+// snapshot are all deliberately absent. `documentId` is the stable identifier
+// used by the detail link; `id` remains the existing row key.
 const ORDER_LIST_FIELDS = [
   'id',
+  'documentId',
   'orderNumber',
   'grandTotalMinor',
   'paymentStatus',
@@ -51,6 +56,57 @@ const ORDER_ITEM_LIST_FIELDS = [
   'packSizeSnapshot',
   'quantity',
   'lineTotalMinor',
+];
+
+const ORDER_DETAIL_FIELDS = [
+  'documentId',
+  'orderNumber',
+  'itemsMrpTotalMinor',
+  'discountMinor',
+  'subtotalMinor',
+  'taxableBaseMinor',
+  'taxMinor',
+  'shippingFeeMinor',
+  'grandTotalMinor',
+  'paymentStatus',
+  'shipmentStatus',
+  'paymentProvider',
+  'paymentProviderOrderId',
+  'paymentProviderPaymentId',
+  'paidAt',
+  'shipmentProvider',
+  'awbNumber',
+  'trackingUrl',
+  'shippedAt',
+  'deliveredAt',
+  'createdAt',
+];
+
+const ORDER_ITEM_DETAIL_FIELDS = [
+  'documentId',
+  'productTitleSnapshot',
+  'variantNameSnapshot',
+  'skuSnapshot',
+  'packSizeSnapshot',
+  'quantity',
+  'unitSellingPriceMinor',
+  'lineDiscountMinor',
+  'lineTaxableBaseMinor',
+  'lineGstMinor',
+  'gstRateBps',
+  'lineTotalMinor',
+];
+
+const SHIPPING_SNAPSHOT_FIELDS = [
+  'fullName',
+  'phone',
+  'addressLine1',
+  'addressLine2',
+  'landmark',
+  'city',
+  'state',
+  'postalCode',
+  'country',
 ];
 
 // The page has no pagination and renders every order it is given, so the
@@ -122,6 +178,8 @@ const fail = (status, name, message, details) => {
 };
 
 const invalidRequest = (message) => fail(400, 'ValidationError', message);
+
+const orderNotFound = () => fail(404, 'NotFoundError', 'Order not found');
 
 // Another request holds the claim on this order and is talking to the provider
 // right now. Transient, and never a licence to pay a second time.
@@ -784,6 +842,34 @@ module.exports = ({ strapi }) => {
         sort: { createdAt: 'desc' },
         limit: ORDER_LIST_LIMIT,
       });
+    },
+
+    // The identifier and owner are resolved in one query. A missing order and
+    // another customer's order therefore have the same 404 response, and no
+    // unowned row is ever loaded into application memory.
+    async detailForCustomer({ user, documentId } = {}) {
+      const customer = requireUser(
+        user,
+        'You must be signed in to view your orders'
+      );
+      const requested = typeof documentId === 'string' ? documentId.trim() : '';
+      if (!DOCUMENT_ID_PATTERN.test(requested)) orderNotFound();
+
+      const [order] = await documents(ORDER_UID).findMany({
+        filters: {
+          documentId: requested,
+          customer: { id: customer.id },
+        },
+        fields: [...ORDER_DETAIL_FIELDS],
+        populate: {
+          orderItems: { fields: [...ORDER_ITEM_DETAIL_FIELDS] },
+          shippingSnapshot: { fields: [...SHIPPING_SNAPSHOT_FIELDS] },
+        },
+        limit: 1,
+      });
+
+      if (!order) orderNotFound();
+      return order;
     },
 
     async createPayment({ user, body } = {}) {

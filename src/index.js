@@ -26,7 +26,10 @@ const PAYMENT_ACTIONS = [
 //
 // Authenticated only, never public: order.services listForCustomer scopes the
 // read to ctx.state.user, and an anonymous caller has none.
-const ACCOUNT_ACTIONS = ['api::order.order.find'];
+const ACCOUNT_ACTIONS = [
+  'api::order.order.find',
+  'api::order.order.findOne',
+];
 
 // The Account page's saved delivery addresses. src/api/address defines these
 // four as custom content-API routes — deliberately not createCoreRouter, so
